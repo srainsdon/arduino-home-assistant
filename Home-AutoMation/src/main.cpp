@@ -39,11 +39,11 @@ void setup() {
   
     Serial.begin(9600);
     Serial.println("Starting...");
-
     byte mac[WL_MAC_ADDR_LENGTH];
     WiFi.macAddress(mac);
     device.setUniqueId(mac, sizeof(mac));
-
+    Serial.println("MAC: ");
+    Serial.print(mac[8]);
      // connect to wifi
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
