@@ -11,15 +11,18 @@
 DHT dht(DHTPIN, DHTTYPE);
 float t;
 float h;
+#define STATUS_LED 16
 
 //Heater Connected Here 
 #define HEATPIN D2     // Digital pin connected to the Hearter Realy
 
-
+// Home Assistant Settings
+#define HA_DEVICE_NAME    "MainRoom.Thermometer"
+#define SOFTWARE_VERSION  "0.0.1"
 
 // WIFI SETTINGS
-#define WIFI_SSID       "FBI-024"
-#define WIFI_PASSWORD   "Weapon Push 6"
+#define WIFI_SSID         "FBI-024"
+#define WIFI_PASSWORD     "Weapon Push 6"
 WiFiClient client;
 
 //MQTT Settings
@@ -34,16 +37,17 @@ HASensor humid("rhumid");
 
 //Other settings
 unsigned long lastSentAt = millis();
+unsigned long lastBlinkAt = millis();
+
 
 void setup() {
-  
+    pinMode(STATUS_LED, OUTPUT);
     Serial.begin(9600);
     Serial.println("Starting...");
     byte mac[WL_MAC_ADDR_LENGTH];
     WiFi.macAddress(mac);
     device.setUniqueId(mac, sizeof(mac));
-    Serial.println("MAC: ");
-    Serial.print(mac[8]);
+
      // connect to wifi
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
@@ -52,15 +56,15 @@ void setup() {
     }
     Serial.println();
     Serial.println("Connected to the network");
-
+    digitalWrite(STATUS_LED, HIGH);
      // set device's details (optional)
-    device.setName("SethRoom.Thermometer");
-    device.setSoftwareVersion("0.0.1");
+    device.setName(HA_DEVICE_NAME);
+    device.setSoftwareVersion(SOFTWARE_VERSION);
 
     // configure sensor (optional)
     temp.setUnitOfMeasurement("°C");
     temp.setDeviceClass("temperature");
-    temp.setIcon("mdi:Thermometer");
+    temp.setIcon("mdi:thermometer");
     temp.setName("Temperature");
 
     // configure sensor (optional)
@@ -77,6 +81,17 @@ void setup() {
 void loop() {
     
     mqtt.loop();
+
+    if ((millis() - lastBlinkAt) >= 45000) {
+        lastBlinkAt = millis();
+        digitalWrite(STATUS_LED, LOW);
+    }
+
+    if ((millis() - lastBlinkAt) >= 1000) {
+      digitalWrite(STATUS_LED, HIGH);
+    }
+    
+    
 
     if ((millis() - lastSentAt) >= 5000) {
         lastSentAt = millis();
