@@ -12,6 +12,8 @@
 
 #include <NTPClient.h>
 
+#define TIMEOFFSET -7
+
 // DHT Settings
 #define DHTPIN D3     // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT22   // DHT 22
@@ -95,7 +97,7 @@ void setup() {
     }
 
     timeClient.begin();
-    timeClient.setTimeOffset(-25200);
+    timeClient.setTimeOffset((TIMEOFFSET * 3600));
     Serial.println("Connected to the network");
     digitalWrite(STATUS_LED, HIGH);
      // set device's details (optional)
